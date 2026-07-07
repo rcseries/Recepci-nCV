@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
-// Configuración de Firebase (copia esto desde tu consola de Firebase)
+// Configuración de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBvd8E8KrQWP6NcrzzSTAQepwv8XhL5O3Y",
   authDomain: "recepcioncv.firebaseapp.com",
