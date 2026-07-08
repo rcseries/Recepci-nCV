@@ -1,4 +1,4 @@
-import { login } from '../services/authService.js';
+import { login, verificarSesion } from '../services/authService.js';
 
 // Obtener elementos del DOM
 const form = document.getElementById('loginForm');
@@ -9,10 +9,8 @@ const loginButton = document.getElementById('loginButton');
 
 // Verificar si ya hay sesión activa
 window.addEventListener('load', () => {
-    const sesion = localStorage.getItem('sesionActiva');
-    const usuario = localStorage.getItem('usuario');
-    
-    if (sesion === 'true' && usuario) {
+    const sesion = verificarSesion();
+    if (sesion.autenticado) {
         // Redirigir al dashboard
         window.location.href = '/index.html';
     }
@@ -25,9 +23,9 @@ form.addEventListener('submit', async (e) => {
     // Ocultar mensaje de error anterior
     mensajeError.style.display = 'none';
     
-    // Deshabilitar botón
+    // Deshabilitar botón y mostrar estado de carga
     loginButton.disabled = true;
-    loginButton.textContent = '⏳ Verificando...';
+    loginButton.innerHTML = '<span class="cargando"></span> Verificando...';
     
     // Obtener datos
     const usuario = usuarioInput.value.trim();
@@ -36,23 +34,24 @@ form.addEventListener('submit', async (e) => {
     // Validar campos vacíos
     if (!usuario || !password) {
         mostrarError('Por favor, completa todos los campos');
+        resetButton();
         return;
     }
     
-    // Intentar login
-    const resultado = await login(usuario, password);
-    
-    // Habilitar botón
-    loginButton.disabled = false;
-    loginButton.textContent = '✅ Ingresar';
-    
-    if (resultado.success) {
-        // Redirigir al dashboard
-        window.location.href = '/index.html';
-    } else {
-        // Mostrar error
-        mostrarError(resultado.error || 'Usuario o contraseña incorrectos');
-    }
+    // Simular un pequeño retraso para dar feedback visual
+    setTimeout(() => {
+        // Intentar login
+        const resultado = login(usuario, password);
+        
+        if (resultado.success) {
+            // Redirigir al dashboard
+            window.location.href = '/index.html';
+        } else {
+            // Mostrar error
+            mostrarError(resultado.error || 'Usuario o contraseña incorrectos');
+            resetButton();
+        }
+    }, 800);
 });
 
 // Función para mostrar errores
@@ -60,8 +59,22 @@ function mostrarError(mensaje) {
     mensajeError.textContent = `❌ ${mensaje}`;
     mensajeError.style.display = 'block';
     
-    // Ocultar después de 5 segundos
-    setTimeout(() => {
-        mensajeError.style.display = 'none';
-    }, 5000);
+    // Scroll al mensaje de error
+    mensajeError.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
+
+// Función para resetear el botón
+function resetButton() {
+    loginButton.disabled = false;
+    loginButton.textContent = '✅ Ingresar';
+}
+
+// Permitir login con Enter
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !loginButton.disabled) {
+        form.dispatchEvent(new Event('submit'));
+    }
+});
+
+// Auto-focus en el campo usuario
+usuarioInput.focus();
