@@ -5,7 +5,7 @@
   "main": "src/js/app.js",
   "scripts": {
     "start": "live-server public --port=3000",
-    "build": "echo 'No build process needed for now'"
+    "dev": "live-server public --port=3000 --open=login.html"
   },
   "dependencies": {
     "firebase": "^10.7.0"
